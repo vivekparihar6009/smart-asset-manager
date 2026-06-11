@@ -20,6 +20,16 @@ import {
   FileText
 } from 'lucide-react';
 
+const CATEGORIES = [
+  'DSLR Cameras',
+  'Studio Lighting Equipment',
+  'Audio Systems',
+  'Costumes',
+  'Stage Props',
+  'Recording Equipment',
+  'Event Infrastructure'
+];
+
 const Bookings = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('history'); // 'history' or 'new'
