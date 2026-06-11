@@ -17,7 +17,8 @@ import {
   Info,
   Check,
   RotateCcw,
-  Wrench
+  Wrench,
+  ShoppingCart
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -508,6 +509,18 @@ const Assets = () => {
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
+                  )}
+
+                  {/* Standard User Book Now Button */}
+                  {!isAdmin && (
+                    <button
+                      disabled={asset.status !== 'active' || asset.quantity_available <= 0}
+                      onClick={() => window.location.href = `/bookings?selectAsset=${asset.id}`}
+                      className="bg-violet-650 hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-xl text-xs font-semibold border border-violet-500/20 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <ShoppingCart className="h-3.5 w-3.5" />
+                      <span>Book Now</span>
+                    </button>
                   )}
                 </div>
               </div>

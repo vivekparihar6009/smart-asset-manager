@@ -96,6 +96,21 @@ const Bookings = () => {
     fetchAssetsList();
   }, []);
 
+  // Pre-select asset if navigated from catalog with selectAsset param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const selectAssetId = params.get('selectAsset');
+    if (selectAssetId && assetsList.length > 0) {
+      const exists = assetsList.some(a => a.id === parseInt(selectAssetId, 10));
+      if (exists) {
+        setSelectedAssetId(selectAssetId);
+        setActiveTab('new');
+        // Clean URL query parameter so it doesn't run on fresh reload
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, [assetsList]);
+
   // Check availability when date range or selected asset changes
   useEffect(() => {
     const checkSelectedAvailability = async () => {
