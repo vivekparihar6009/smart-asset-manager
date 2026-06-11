@@ -63,6 +63,31 @@ const Assets = () => {
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [qrCodeAsset, setQrCodeAsset] = useState(null);
 
+  // Shopping Cart States
+  const [addedAssetIds, setAddedAssetIds] = useState([]);
+
+  const handleAddToCart = (asset) => {
+    const existingCart = JSON.parse(localStorage.getItem('sam_booking_cart') || '[]');
+    const exists = existingCart.some(item => item.asset_id === asset.id);
+    
+    if (!exists) {
+      existingCart.push({
+        asset_id: asset.id,
+        name: asset.name,
+        category: asset.category,
+        quantity: 1,
+        quantityAvailable: asset.quantity_available
+      });
+      localStorage.setItem('sam_booking_cart', JSON.stringify(existingCart));
+    }
+    
+    // Trigger temporary button success state
+    setAddedAssetIds(prev => [...prev, asset.id]);
+    setTimeout(() => {
+      setAddedAssetIds(prev => prev.filter(id => id !== asset.id));
+    }, 2000);
+  };
+
   // Asset Details & Health History Modal State
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [detailedAsset, setDetailedAsset] = useState(null);
@@ -511,15 +536,28 @@ const Assets = () => {
                     </div>
                   )}
 
-                  {/* Standard User Book Now Button */}
+                  {/* Standard User Add to Cart Button */}
                   {!isAdmin && (
                     <button
                       disabled={asset.status !== 'active' || asset.quantity_available <= 0}
-                      onClick={() => window.location.href = `/bookings?selectAsset=${asset.id}`}
-                      className="bg-violet-650 hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-xl text-xs font-semibold border border-violet-500/20 transition-colors flex items-center gap-1.5 cursor-pointer"
+                      onClick={() => handleAddToCart(asset)}
+                      className={`text-white px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer ${
+                        addedAssetIds.includes(asset.id)
+                          ? 'bg-emerald-600 border-emerald-500 hover:bg-emerald-700 shadow-md shadow-emerald-950/20'
+                          : 'bg-violet-650 border-violet-500/20 hover:bg-violet-700'
+                      } disabled:opacity-40 disabled:cursor-not-allowed`}
                     >
-                      <ShoppingCart className="h-3.5 w-3.5" />
-                      <span>Book Now</span>
+                      {addedAssetIds.includes(asset.id) ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 animate-bounce" />
+                          <span>Added!</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="h-3.5 w-3.5" />
+                          <span>Add to Cart</span>
+                        </>
+                      )}
                     </button>
                   )}
                 </div>

@@ -47,7 +47,15 @@ const Bookings = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [purpose, setPurpose] = useState('');
-  const [cart, setCart] = useState([]); // Array of { asset_id, name, category, quantity, quantityAvailable }
+  const [cart, setCart] = useState(() => {
+    try {
+      const savedCart = localStorage.getItem('sam_booking_cart');
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (err) {
+      console.error('Failed to load cart from localStorage:', err);
+      return [];
+    }
+  });
   
   // Selection states (for currently chosen asset to add)
   const [selectedAssetId, setSelectedAssetId] = useState('');
@@ -103,13 +111,34 @@ const Bookings = () => {
     if (selectAssetId && assetsList.length > 0) {
       const exists = assetsList.some(a => a.id === parseInt(selectAssetId, 10));
       if (exists) {
-        setSelectedAssetId(selectAssetId);
+        // Add to cart directly if not already in cart
+        const asset = assetsList.find(a => a.id === parseInt(selectAssetId, 10));
+        if (asset) {
+          const cartExists = cart.some(item => item.asset_id === asset.id);
+          if (!cartExists) {
+            setCart(prev => [
+              ...prev,
+              {
+                asset_id: asset.id,
+                name: asset.name,
+                category: asset.category,
+                quantity: 1,
+                quantityAvailable: asset.quantity_available
+              }
+            ]);
+          }
+        }
         setActiveTab('new');
         // Clean URL query parameter so it doesn't run on fresh reload
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
   }, [assetsList]);
+
+  // Synchronize cart state back to localStorage
+  useEffect(() => {
+    localStorage.setItem('sam_booking_cart', JSON.stringify(cart));
+  }, [cart]);
 
   // Check availability when date range or selected asset changes
   useEffect(() => {
