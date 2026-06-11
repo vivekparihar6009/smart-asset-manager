@@ -18,6 +18,7 @@ const seedDatabase = async () => {
     const userInsertQuery = `
       INSERT INTO users (name, email, password_hash, role) VALUES 
       ('Admin Coordinator', 'admin@iitr.ac.in', $1, 'admin'),
+      ('Standard User', 'user@iitr.ac.in', $2, 'user'),
       ('Siddharth Sharma', 'siddharth@iitr.ac.in', $2, 'user'),
       ('Ananya Iyer', 'ananya@iitr.ac.in', $2, 'user'),
       ('Varun Verma', 'varun@iitr.ac.in', $2, 'user')
