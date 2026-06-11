@@ -23,7 +23,6 @@ const QRScannerModal = ({ isOpen, onClose }) => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
 
-  if (!isOpen) return null;
 
   // List of assets to choose for simulation
   const [assets, setAssets] = useState([]);
@@ -144,6 +143,8 @@ const QRScannerModal = ({ isOpen, onClose }) => {
     onClose();
     navigate('/maintenance');
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
