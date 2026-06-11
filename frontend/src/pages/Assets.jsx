@@ -839,7 +839,7 @@ const Assets = () => {
 
               <a
                 href={qrCodeAsset?.qr_code_base64}
-                download={`QR_${qrCodeAsset?.name.replace(/\s+/g, '_')}.png`}
+                download={`QR_${(qrCodeAsset?.name || '').replace(/\s+/g, '_')}.png`}
                 className="w-full bg-violet-650 hover:bg-violet-700 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-lg shadow-violet-955 cursor-pointer"
               >
                 Download PNG
