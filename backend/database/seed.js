@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
 const db = require('../config/db');
+const QRCode = require('qrcode');
+
 
 const seedDatabase = async () => {
   try {
@@ -129,16 +131,25 @@ const seedDatabase = async () => {
 
     const assets = [];
     for (const item of assetsData) {
-      // Mock QR codes as base64 strings containing the payload info
-      const qrPayload = JSON.stringify({ name: item.name, category: item.category });
-      const qrBase64 = `data:image/png;base64,${Buffer.from(qrPayload).toString('base64')}`;
-
+      // First insert the asset details
       const res = await db.query(
-        `INSERT INTO assets (name, category, description, quantity_total, quantity_available, status, condition, qr_code_base64)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, name;`,
-        [item.name, item.category, item.description, item.quantity_total, item.quantity_available, item.status, item.condition, qrBase64]
+        `INSERT INTO assets (name, category, description, quantity_total, quantity_available, status, condition)
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, category;`,
+        [item.name, item.category, item.description, item.quantity_total, item.quantity_available, item.status, item.condition]
       );
-      assets.push(res.rows[0]);
+      const insertedAsset = res.rows[0];
+
+      // Generate a real QR code containing the asset ID, name, and category
+      const qrPayload = JSON.stringify({ id: insertedAsset.id, name: insertedAsset.name, category: insertedAsset.category });
+      const realQRCodeBase64 = await QRCode.toDataURL(qrPayload);
+
+      // Update the asset with the real QR code
+      await db.query(
+        'UPDATE assets SET qr_code_base64 = $1 WHERE id = $2',
+        [realQRCodeBase64, insertedAsset.id]
+      );
+
+      assets.push(insertedAsset);
     }
     console.log(`Seeded ${assets.length} assets successfully.`);
 
